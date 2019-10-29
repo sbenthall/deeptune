@@ -2,30 +2,28 @@ import librosa
 import numpy as np
 
 
-def load_to_db(inp, duration = 30):
+def load_to_amp(inp, duration = 30):
     x, sr = librosa.load(inp, duration = duration)
     X = librosa.stft(x)
-    Xdb = librosa.amplitude_to_db(X)
-    return Xdb, sr
+    return X, sr
 
 
-def mix_transform(Xdb1,Xdb2):
-    db_range = Xdb1.shape[0]
-    shared_length = min(Xdb1.shape[1],Xdb2.shape[1])
+def mix_transform(X1,X2):
+    amp_range = X1.shape[0]
+    shared_length = min(X1.shape[1],X2.shape[1])
     
-    mix = np.random.random(size=(db_range,shared_length)) > .5
+    mix = np.random.random(size=(amp_range,shared_length)) > .5
     
-    Xdb3 = mix * Xdb1[:,:shared_length] + np.logical_not(mix) * Xdb2[:,:shared_length]
+    X3 = mix * X1[:,:shared_length] + np.logical_not(mix) * X2[:,:shared_length]
     
-    return Xdb3
+    return X3
 
 
 def merge(in1, in2, out, transform_method = mix_transform, duration=30):
-    Xdb1, sr = load_to_db(in1,duration = duration)
-    Xdb2, sr = load_to_db(in2, duration = duration )
+    X1, sr = load_to_amp(in1,duration = duration)
+    X2, sr = load_to_amp(in2, duration = duration )
     
-    Xdb3 = transform_method(Xdb1,Xdb2)
-    X3 = librosa.db_to_amplitude(Xdb3)
+    X3 = transform_method(X1,X2)
     x3 = librosa.core.istft(X3)
     librosa.output.write_wav(out, x3, sr)
 
