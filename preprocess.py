@@ -2,14 +2,15 @@ import os
 
 from pydub import AudioSegment
 
-DATA_DIR = "data/input"
+INPUT_DIR = "data/input"
+OUTPUT_DIR = "data/processed"
 
 segment_duration = 1000
 
-onlyfiles = [os.path.join(DATA_DIR, f)
+onlyfiles = [f
              for f
-             in os.listdir(DATA_DIR)
-             if os.path.isfile(os.path.join(DATA_DIR, f))]
+             in os.listdir(INPUT_DIR)
+             if os.path.isfile(os.path.join(INPUT_DIR, f))]
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -17,10 +18,17 @@ def chunks(l, n):
         yield l[i:i + n]
 
 for songfile in onlyfiles:
-    song = AudioSegment.from_mp3(songfile)
+    song_path_in = os.path.join(INPUT_DIR, songfile)
+    song = AudioSegment.from_mp3(song_path_in)
 
     i = 0
     for c in chunks(song,segment_duration):
         print(songfile, i, len(c))
-        i = i  + 1
+
+        chunk_path_out = os.path.join(OUTPUT_DIR,
+                                      f"{songfile[:-4]}-{i}.wav")
+
+        c.export(chunk_path_out, format="wav")
+
+        i = i + 1
         
