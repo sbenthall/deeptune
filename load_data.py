@@ -3,68 +3,56 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import numpy as np
 import os
 import tensorflow as tf
-
+import utils
 
 OUTPUT_DIR = "data/processed"
 
-filenames = [f
-             for f
-             in os.listdir(OUTPUT_DIR)
-             if os.path.isfile(os.path.join(OUTPUT_DIR, f))]
+def prepare_tensorflow_datasets():
 
-## Getting the labels
-labels = [f.split("---")[0] for f in filenames]
-unique_labels = list(set(labels))
-num_labels = np.array([unique_labels.index(label) for label in labels])
+    filenames = utils.onlyfiles(OUTPUT_DIR)
 
-
-## Getting and stacking the data
-data = np.stack([np.load(os.path.join(OUTPUT_DIR,f),
-                         allow_pickle=True)
-                 for f
-                 in filenames],
-                0)
+    ## Getting the labels
+    labels = [f.split("---")[0] for f in filenames]
+    unique_labels = list(set(labels))
+    num_labels = np.array([unique_labels.index(label)
+                           for label
+                           in labels])
 
 
-p = np.random.permutation(len(num_labels))
-print(len(num_labels))
-print(len(p))
-num_labels = num_labels[p]
-data = data[p,:,:]
+    ## Getting and stacking the data
+    data = np.stack([np.load(os.path.join(OUTPUT_DIR,f),
+                             allow_pickle=True)
+                     for f
+                     in filenames],
+                    0)
 
-train_count = int(len(labels) * 2 / 3)
+    ## shuffle the data
+    p = np.random.permutation(len(num_labels))
+    num_labels = num_labels[p]
+    data = data[p,:,:]
 
-train_examples = data[:train_count]
-train_labels = num_labels[:train_count]
-test_examples = data[:train_count]
-test_labels = num_labels[:train_count]
+    # 30% of data is for testing.
+    train_count = int(len(labels) * 7 / 10)
 
+    train_examples = data[:train_count]
+    train_labels = num_labels[:train_count]
+    test_examples = data[:train_count]
+    test_labels = num_labels[:train_count]
 
-train_dataset = tf.data.Dataset.from_tensor_slices((train_examples, train_labels))
-test_dataset = tf.data.Dataset.from_tensor_slices((test_examples, test_labels))
-  
-#train_examples = []
-#train_labels = []
-#test_examples = []
-#test_labels = []
+    train_dataset = tf.data.Dataset.from_tensor_slices(
+        (train_examples, train_labels))
+    test_dataset = tf.data.Dataset.from_tensor_slices(
+        (test_examples, test_labels))
 
-BATCH_SIZE = 64
-SHUFFLE_BUFFER_SIZE = 100
-
-train_dataset = train_dataset.shuffle(SHUFFLE_BUFFER_SIZE).batch(BATCH_SIZE)
-test_dataset = test_dataset.batch(BATCH_SIZE)
-
-
-model = tf.keras.Sequential([
-    tf.keras.layers.Flatten(input_shape=(1025, 44)),
-    tf.keras.layers.Dense(1000, activation='relu'),
-    tf.keras.layers.Dense(50, activation='relu'),
-    tf.keras.layers.Dense(3, activation='softmax')
-])
-
-model.compile(optimizer=tf.keras.optimizers.RMSprop(),
-                loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-                metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
+    return train_dataset, test_dataset
 
 
-model.evaluate(test_dataset)
+def shuffle(train_dataset, test_dataset):
+    BATCH_SIZE = 32
+    SHUFFLE_BUFFER_SIZE = 50
+
+    train_dataset = train_dataset.shuffle(
+        SHUFFLE_BUFFER_SIZE).batch(BATCH_SIZE)
+    test_dataset = test_dataset.batch(BATCH_SIZE)
+
+    return train_dataset, test_dataset
