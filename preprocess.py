@@ -37,7 +37,7 @@ for songfile in onlyfiles:
     for c in chunks(song,segment_duration):
         if len(c) < segment_duration:
             continue
-        
+
         print(f"Writing DB array for {songfile} chunk {i}")
         chunk_path_out = os.path.join(OUTPUT_DIR,
                                       f"{songfile[:-4]}---{i}")
