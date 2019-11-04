@@ -1,5 +1,6 @@
 import os
 
+from conf import *
 import librosa
 import numpy as np
 from pydub import AudioSegment
@@ -14,26 +15,13 @@ each chunk into a numerical array.
 These arrays are saved to an output directory.
 """
 
-INPUT_DIR = "data/input"
-OUTPUT_DIR = "data/processed"
-
-#number of miliseconds
-segment_duration = 1000
-
-
-
-def chunks(l, n):
-    """Yield successive n-sized chunks from l."""
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
-
 def chopchop():
     for songfile in utils.onlyfiles(INPUT_DIR):
         song_path_in = os.path.join(INPUT_DIR, songfile)
         song = AudioSegment.from_mp3(song_path_in)
 
         i = 0
-        for c in chunks(song,segment_duration):
+        for c in utils.chunks(song,segment_duration):
             if len(c) < segment_duration:
                 continue
 
