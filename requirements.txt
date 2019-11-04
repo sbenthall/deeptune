@@ -1,2 +1,4 @@
 librosa
 pydub
+pyyaml
+h5py
