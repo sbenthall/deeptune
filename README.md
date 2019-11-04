@@ -1,12 +1,9 @@
 # deeptune
-Inventing new sound
-
+Musical style transfer
 
 ## Python Depedencies
 
-- librosa
-- keras
-- pydub
+Run `pip install -r requirements.txt`
 
 ## Acknowledgements
 
