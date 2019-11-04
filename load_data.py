@@ -26,6 +26,13 @@ def prepare_tensorflow_datasets():
                      in filenames],
                     0)
 
+    ds = data.shape
+
+    print(data.shape)
+    data = data.reshape(ds[0], ds[1], ds[2], 1)
+    data = data.astype('float32')
+    data/=100
+
     ## shuffle the data
     p = np.random.permutation(len(num_labels))
     num_labels = num_labels[p]
