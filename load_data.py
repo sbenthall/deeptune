@@ -44,7 +44,7 @@ def prepare_tensorflow_datasets():
     test_dataset = tf.data.Dataset.from_tensor_slices(
         (test_examples, test_labels))
 
-    return train_dataset, test_dataset
+    return train_dataset, test_dataset, max(num_labels) + 1
 
 
 def shuffle(train_dataset, test_dataset):
