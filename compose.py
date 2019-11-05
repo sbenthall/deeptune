@@ -11,6 +11,9 @@ import utils
 Recompose an mp3 from fragments.
 """
 
+def chunknumber(chunkname):
+    return int(chunkname[:-4].split("---")[1])
+
 def compose(song):
     title = song[:-4]
     
@@ -19,7 +22,9 @@ def compose(song):
                          chunkfile
                          in utils.onlyfiles(OUTPUT_DIR)
                          if chunkfile.startswith(title)
-                         and chunkfile.endswith(".npy")])
+                         and chunkfile.endswith(".npy")],
+                        key=chunknumber
+    )
 
     song = None
     
