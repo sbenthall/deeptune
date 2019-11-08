@@ -51,15 +51,20 @@ class Fragment():
             np.save(self.path(), self.np_data)
 
         
-def from_directory():
+def from_directory(song=None):
     filenames = utils.onlyfiles(OUTPUT_DIR)
 
     for fi in filenames:
-        song, number_type = fi.split("---")
+        fi_song, fi_number_type = fi.split("---")
 
         try:
-            frag = Fragment(song,
-                            int(number_type[:-4]),
+            if song and fi_song != song:
+                continue
+
+            fi_number = int(fi_number_type[:-4])
+
+            frag = Fragment(fi_song,
+                            fi_number,
                             np_data = np.load(os.path.join(
                                 OUTPUT_DIR,
                                 fi),

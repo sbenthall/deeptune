@@ -1,5 +1,6 @@
 import os
 
+import fragment
 from conf import *
 import librosa
 import numpy as np
@@ -11,27 +12,19 @@ import utils
 Recompose an mp3 from fragments.
 """
 
-def chunknumber(chunkname):
-    return int(chunkname[:-4].split("---")[1])
-
 def compose(song):
     title = song[:-4]
     
-    chunkfiles = sorted([chunkfile
-                         for
-                         chunkfile
-                         in utils.onlyfiles(OUTPUT_DIR)
-                         if chunkfile.startswith(title)
-                         and chunkfile.endswith(".npy")],
-                        key=chunknumber
+    frags = sorted(fragment.from_directory(song=title),
+                        key=lambda x: x.number
     )
 
     song = None
     
-    for cf in chunkfiles:
-        wav_file_name = cf[:-4]
+    for fr in frags:
+        wav_file_name = fr.song
         
-        Xdb = np.load(os.path.join(OUTPUT_DIR,cf))
+        Xdb = fr.np_data
         X2 = librosa.db_to_amplitude(Xdb)
         x2 = librosa.core.istft(X2)
 
