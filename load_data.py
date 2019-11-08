@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
- 
+
+import fragment
 import numpy as np
 import os
 import tensorflow as tf
@@ -9,21 +10,12 @@ OUTPUT_DIR = "data/processed"
 
 def prepare_tensorflow_datasets():
 
-    filenames = utils.onlyfiles(OUTPUT_DIR)
-
-    ## Getting the labels
-    labels = [f.split("---")[0] for f in filenames]
-    unique_labels = list(set(labels))
-    num_labels = np.array([unique_labels.index(label)
-                           for label
-                           in labels])
-
-
+    frags = list(fragment.from_directory())
+    
     ## Getting and stacking the data
-    data = np.stack([np.load(os.path.join(OUTPUT_DIR,f),
-                             allow_pickle=True)
+    data = np.stack([f.np_data
                      for f
-                     in filenames],
+                     in frags],
                     0)
 
     ds = data.shape
@@ -32,6 +24,16 @@ def prepare_tensorflow_datasets():
     data = data.reshape(ds[0], ds[1], ds[2], 1)
     data = data.astype('float32')
     data/=100
+
+
+    ## Getting the labels
+    labels = [f.song for f in frags]
+    unique_labels = list(set(labels))
+    num_labels = np.array([unique_labels.index(label)
+                           for label
+                           in labels])
+
+    
 
     ## shuffle the data
     p = np.random.permutation(len(num_labels))

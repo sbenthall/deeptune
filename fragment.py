@@ -2,6 +2,7 @@ from conf import *
 import os
 import librosa
 import numpy as np
+import utils
 
 class Fragment():
     song = None
@@ -50,3 +51,22 @@ class Fragment():
             np.save(self.path(), self.np_data)
 
         
+def from_directory():
+    filenames = utils.onlyfiles(OUTPUT_DIR)
+
+    for fi in filenames:
+        song, number_type = fi.split("---")
+
+        try:
+            frag = Fragment(song,
+                            int(number_type[:-4]),
+                            np_data = np.load(os.path.join(
+                                OUTPUT_DIR,
+                                fi),
+                                              allow_pickle=True))
+            yield frag
+
+        except:
+            pass
+
+    
