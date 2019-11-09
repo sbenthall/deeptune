@@ -1,23 +1,35 @@
+from fragment import Fragment
 import numpy as np
 import tensorflow as tf
 
-chunk1_name = "data/processed/06 - Mama Told Me (Not To Come) (Single Version)---76.npy"
-chunk1 = np.load(chunk1_name)
+content_frag = Fragment(
+    "11 - An Old Fashioned Love Song (Single Version)",
+    100
+)
+content_frag.load_np_data()
 
-ds = chunk1.shape
-chunk1 = chunk1.reshape(1, ds[0], ds[1], 1)
-chunk1 = chunk1.astype('float32')
-chunk1/=100
+style_frag = Fragment(
+    "organ1",
+    15
+)
+style_frag.load_np_data()
 
+def prepare_fragment_np_for_model(fragment):
+    np_data = fragment.np_data
 
-chunk2_name = "data/processed/20 - Verdi_ Il Trovatore _ Act 3 - _Di quella pira_---107.npy"
-chunk2 = np.load(chunk2_name)
+    ds = np_data.shape
+    np_data = np_data.reshape(1, ds[0], ds[1], 1)
+    np_data = np_data.astype('float32')
+    np_data/=100
 
-ds = chunk2.shape
-chunk2 = chunk2.reshape(1, ds[0], ds[1], 1)
-chunk2 = chunk2.astype('float32')
-chunk2/=100
+    return np_data
 
+def model_out_to_frag_np(tf_chunk):
+    np_data = tf_chunk.numpy() * 100
+    ds = np_data.shape
+    np_data = np_data.reshape(ds[1], ds[2])
+
+    return np_data
 
 
 # Recreate the exact same model, including its weights and the optimizer
@@ -46,7 +58,8 @@ def model_layers(model, layer_names):
 
 
 style_extractor = model_layers(song_model,style_layers)
-style_outputs = style_extractor(chunk1)
+style_outputs = style_extractor(
+    prepare_fragment_np_for_model(content_frag))
 
 #Look at the statistics of each layer's output
 for name, output in zip(style_layers, style_outputs):
@@ -78,7 +91,7 @@ class StyleContentModel(tf.keras.models.Model):
         
     def call(self, inputs):
         "XYZ: Expects float input in [?,?]"
-        inputs = inputs*255.0
+        inputs = inputs*255.0  ## Why this?
         #preprocessed_input = self.transfer_model.preprocess_input(inputs)
         outputs = self.transfer_model(inputs)
         style_outputs, content_outputs = (outputs[:self.num_style_layers], 
@@ -102,7 +115,9 @@ extractor = StyleContentModel(song_model,
                               style_layers,
                               content_layers)
 
-results = extractor(tf.constant(chunk2))
+results = extractor(tf.constant(
+    prepare_fragment_np_for_model(style_frag)
+))
 
 style_results = results['style']
 
@@ -127,10 +142,11 @@ for name, output in sorted(results['content'].items()):
 ## style transfer tutorial used up until this section:
 ## https://www.tensorflow.org/tutorials/generative/style_transfer#run_gradient_descent
 
-style_targets = extractor(chunk1)['style']
-content_targets = extractor(chunk2)['content']
+content_targets = extractor(prepare_fragment_np_for_model(content_frag))['content']
 
-chunk3 = tf.Variable(chunk2)
+style_targets = extractor(prepare_fragment_np_for_model(style_frag))['style']
+
+transfer_chunk = tf.Variable(prepare_fragment_np_for_model(content_frag))
 
 ### ???
 #def clip_0_1(image):
@@ -138,8 +154,8 @@ chunk3 = tf.Variable(chunk2)
 
 opt = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
 
-style_weight=1e-2
-content_weight=1e4
+style_weight= 1   #1e-2
+content_weight= 1  #1e4
 
 def style_content_loss(outputs):
     style_outputs = outputs['style']
@@ -165,13 +181,19 @@ def train_step(image):
     opt.apply_gradients([(grad, image)])
     image.assign(image)
 
-train_step(chunk3)
-train_step(chunk3)
+train_step(transfer_chunk)
+train_step(transfer_chunk)
 #train_step(chunk3)
 
-np.save("transfered-chunk",
-        chunk3.numpy() * 100,
-        allow_pickle=False)
+print(transfer_chunk.numpy().shape)
+
+transfer_frag = Fragment(
+    "Mutant",
+    1,
+    np_data = model_out_to_frag_np(transfer_chunk)
+)
+
+transfer_frag.np_to_wav(save=True)
 
 #tensor_to_image(image)
 
