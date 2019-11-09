@@ -181,9 +181,18 @@ def train_step(image):
     opt.apply_gradients([(grad, image)])
     image.assign(image)
 
+def show_tensor(tensor):
+    plt.imshow(model_out_to_frag_np(tensor))
+    plt.show()
+
+
+show_tensor(transfer_chunk)
+
 train_step(transfer_chunk)
 train_step(transfer_chunk)
-#train_step(chunk3)
+train_step(transfer_chunk)
+
+show_tensor(transfer_chunk)
 
 print(transfer_chunk.numpy().shape)
 
@@ -197,8 +206,7 @@ transfer_frag.np_to_wav(save=True)
 
 #tensor_to_image(image)
 
-"""
-Next steps
+
 
 import time
 start = time.time()
@@ -208,17 +216,17 @@ steps_per_epoch = 100
 
 step = 0
 for n in range(epochs):
-  for m in range(steps_per_epoch):
-    step += 1
-    train_step(image)
-    print(".", end='')
-  display.clear_output(wait=True)
-  display.display(tensor_to_image(image))
-  print("Train step: {}".format(step))
+    for m in range(steps_per_epoch):
+        step += 1
+        train_step(transfer_chunk)
+        print(".", end='')
+
+    show_tensor(transfer_chunk)
+    print("Train step: {}".format(step))
   
 end = time.time()
 print("Total time: {:.1f}".format(end-start))
-"""
+
 
 
 ### Next part of tutorial
