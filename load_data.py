@@ -8,24 +8,36 @@ import utils
 
 OUTPUT_DIR = "data/processed"
 
+def preprocess_fragment(fragment):
+    np_data = fragment.np_data
+
+    ds = np_data.shape
+    tf_input = np_data.reshape(1, ds[0], ds[1], 1)
+    tf_input = tf_input.astype('float32')
+    tf_input/=100
+
+    return tf_input
+
+def postprocess_fragment(tf_output):
+    np_data = tf_output.numpy() * 100
+    ds = np_data.shape
+    np_data = np_data.reshape(ds[1], ds[2])
+
+    return np_data
+
+
 def prepare_tensorflow_datasets():
 
     frags = list(fragment.from_directory())
     
     ## Getting and stacking the data
-    data = np.stack([f.np_data
+    data = np.stack([preprocess_fragment(f)
                      for f
                      in frags],
                     0)
-
     ds = data.shape
-
-    print(data.shape)
-    data = data.reshape(ds[0], ds[1], ds[2], 1)
-    data = data.astype('float32')
-    data/=100
-
-
+    data = data.reshape(ds[0], ds[2], ds[3], ds[4])
+    
     ## Getting the labels
     labels = [f.song for f in frags]
     unique_labels = list(set(labels))
