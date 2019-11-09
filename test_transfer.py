@@ -32,10 +32,10 @@ for layer in song_model.layers:
     print(layer.name)
 
 # Content layer where will pull our feature maps
-content_layers = ['dense_1'] 
+content_layers = ['dense'] 
 
 # Style layer of interest
-style_layers = ['conv2d_1']
+style_layers = ['conv2d_1','conv2d_2']
 
 style_extractor = model_layers(song_model,style_layers)
 style_outputs = style_extractor(
