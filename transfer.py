@@ -83,7 +83,7 @@ class StyleContentModel(tf.keras.models.Model):
         
     def call(self, inputs):
         "XYZ: Expects float input in [?,?]"
-        inputs = inputs*255.0  ## Why this?
+        ###inputs = inputs*255.0  ## Why this?
         #preprocessed_input = self.transfer_model.preprocess_input(inputs)
         outputs = self.transfer_model(inputs)
         style_outputs, content_outputs = (outputs[:self.num_style_layers], 
