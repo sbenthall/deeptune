@@ -53,19 +53,20 @@ class Fragment():
             print(f"Numpy array: Shape: {Xdb.shape}; Max: {Xdb.max()}; Min: {Xdb.min()}")
             np.save(self.path(), self.np_data)
 
-    def np_to_wav(self):
-        wav_file_name = self.song
+    def np_to_wav(self, save = False):
+        wav_path = self.path() + ".wav"
 
         Xdb = self.np_data
         X2 = librosa.db_to_amplitude(Xdb)
         x2 = librosa.core.istft(X2)
 
-        librosa.output.write_wav(wav_file_name,
+        librosa.output.write_wav(wav_path,
                                  x2,
                                  wav_sample_rate)
-        chunk = AudioSegment.from_wav(wav_file_name)
+        chunk = AudioSegment.from_wav(wav_path)
 
-        os.remove(wav_file_name)
+        if not save:
+            os.remove(wav_path)
 
         self.wav_seg = chunk
 
