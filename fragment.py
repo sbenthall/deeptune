@@ -72,6 +72,9 @@ class Fragment():
 
         return self.wav_seg
 
+    def load_np_data(self):
+        self.np_data = np.load(self.path() + ".npy")
+
 
 def from_directory(song=None):
     filenames = utils.onlyfiles(OUTPUT_DIR)
