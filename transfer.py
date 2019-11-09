@@ -69,10 +69,15 @@ class StyleContentModel(tf.keras.models.Model):
 
 opt = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
 
-style_weight= 1   #1e-2
+style_weight= 10000   #1e-2
 content_weight= 1  #1e4
 
-def style_content_loss(outputs):
+def style_content_loss(outputs,
+                       content_targets,
+                       style_targets,
+                       num_content_layers=1,
+                       num_style_layers=1
+):
     style_outputs = outputs['style']
     content_outputs = outputs['content']
     style_loss = tf.add_n([tf.reduce_mean((style_outputs[name]-style_targets[name])**2) 
@@ -85,22 +90,34 @@ def style_content_loss(outputs):
     loss = style_loss + content_loss
     return loss
 
-
-@tf.function()
-def train_step(image):
-    with tf.GradientTape() as tape:
-        outputs = extractor(image)
-        loss = style_content_loss(outputs)
-        
-    grad = tape.gradient(loss, image)
-    opt.apply_gradients([(grad, image)])
-    image.assign(image)
-
 def show_tensor(tensor):
     plt.imshow(load_data.postprocess_fragment(tensor))
     plt.show()
 
 
+def transfer(base_fragment,train_step_function):
+    
+    start = time.time()
+
+    epochs = 10
+    steps_per_epoch = 100
+
+    step = 0
+
+    np_data = []
+    for n in range(epochs):
+        for m in range(steps_per_epoch):
+            step += 1
+            train_step_function(base_fragment)
+            print(".", end='')
+
+        np_data.append(base_fragment.numpy())
+        print("Train step: {}".format(step))
+  
+    end = time.time()
+    print("Total time: {:.1f}".format(end-start))
+
+    return np_data
 
 
 ### Next part of tutorial

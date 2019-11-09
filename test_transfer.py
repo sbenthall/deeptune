@@ -12,6 +12,16 @@ style_frag = Fragment(
 )
 style_frag.load_np_data()
 
+## Display the content and style fragments
+fig=plt.figure(figsize=(8, 8))
+
+fig.add_subplot(1, 2, 1)
+plt.imshow(content_frag.np_data)
+
+fig.add_subplot(1, 2, 2)
+plt.imshow(style_frag.np_data)
+
+plt.show()
 
 # Recreate the exact same model, including its weights and the optimizer
 song_model = tf.keras.models.load_model('song_model.h5')
@@ -26,10 +36,6 @@ content_layers = ['dense_1']
 
 # Style layer of interest
 style_layers = ['conv2d_1']
-
-num_content_layers = len(content_layers)
-num_style_layers = len(style_layers)
-
 
 style_extractor = model_layers(song_model,style_layers)
 style_outputs = style_extractor(
@@ -81,15 +87,24 @@ style_targets = extractor(load_data.preprocess_fragment(style_frag))['style']
 
 transfer_chunk = tf.Variable(load_data.preprocess_fragment(content_frag))
 
-
-
-show_tensor(transfer_chunk)
+@tf.function()
+def train_step(image):
+    with tf.GradientTape() as tape:
+        outputs = extractor(image)
+        loss = style_content_loss(outputs,
+                                  content_targets,
+                                  style_targets,
+                                  num_content_layers = len(content_layers),
+                                  num_style_layers = len(style_layers)
+        )
+        
+    grad = tape.gradient(loss, image)
+    opt.apply_gradients([(grad, image)])
+    image.assign(image)
 
 train_step(transfer_chunk)
 train_step(transfer_chunk)
 train_step(transfer_chunk)
-
-show_tensor(transfer_chunk)
 
 print(transfer_chunk.numpy().shape)
 
@@ -101,23 +116,20 @@ transfer_frag = Fragment(
 
 transfer_frag.np_to_wav(save=True)
 
+np_data = transfer(transfer_chunk,train_step)
 
+epochs = len(np_data)
 
+fig=plt.figure(figsize=(8, 8))
 
-start = time.time()
+fig.add_subplot(1, epochs + 2, 1)
+plt.imshow(content_frag.np_data)
 
-epochs = 10
-steps_per_epoch = 100
+for i in range(epochs):
+    fig.add_subplot(1,epochs + 2, 2 + i)
+    plt.imshow(np_data[i].reshape(1025,44))
 
-step = 0
-for n in range(epochs):
-    for m in range(steps_per_epoch):
-        step += 1
-        train_step(transfer_chunk)
-        print(".", end='')
+fig.add_subplot(1, epochs + 2, epochs + 2)
+plt.imshow(style_frag.np_data)
 
-    show_tensor(transfer_chunk)
-    print("Train step: {}".format(step))
-  
-end = time.time()
-print("Total time: {:.1f}".format(end-start))
+plt.show()
