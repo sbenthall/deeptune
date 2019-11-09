@@ -102,23 +102,15 @@ def train_step(image):
     opt.apply_gradients([(grad, image)])
     image.assign(image)
 
-train_step(transfer_chunk)
-train_step(transfer_chunk)
-train_step(transfer_chunk)
-
-print(transfer_chunk.numpy().shape)
-
-transfer_frag = Fragment(
-    "Mutant",
-    1,
-    np_data = load_data.postprocess_fragment(transfer_chunk)
-)
-
-transfer_frag.np_to_wav(save=True)
 
 np_data = transfer(transfer_chunk,train_step)
 
 epochs = len(np_data)
+
+for i in range(epochs -1):
+    npd = np_data[i+1] - np_data[i]
+
+    print(np.abs(npd).sum().sum())
 
 fig=plt.figure(figsize=(8, 8))
 
@@ -133,3 +125,16 @@ fig.add_subplot(1, epochs + 2, epochs + 2)
 plt.imshow(style_frag.np_data)
 
 plt.show()
+
+print(np_data[-1].max())
+print(np_data[-1].min())
+
+
+
+transfer_frag = Fragment(
+    "Mutant",
+    2,
+    np_data = load_data.postprocess_fragment(tf.Variable(np_data[-1]))
+)
+
+transfer_frag.np_to_wav(save=True)
