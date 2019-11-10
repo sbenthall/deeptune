@@ -79,12 +79,19 @@ class Fragment():
 
         return self.wav_seg
 
+    def get_wav_seg(self):
+        if self.wav_seg:
+            return self.wav_seg
+        elif self.np_data:
+            return self.np_to_wav()
+        else:
+            return None
+
     def load_np_data(self):
         self.np_data = np.load(self.path() + ".npy")
 
 
-def from_directory(song=None):
-    directory = TRAINING_FRAGMENT_DIR
+def from_directory(song=None, directory = TRAINING_FRAGMENT_DIR):
 
     filenames = utils.onlyfiles(directory)
 
@@ -97,15 +104,29 @@ def from_directory(song=None):
 
             fi_number = int(fi_number_type[:-4])
 
+            np_data = None
+            if fi_number_type[-4:] == ".npy":
+                np_data = np.load(os.path.join(
+                    directory,
+                    fi),
+                                allow_pickle=True)
+
+            wav_seg = None
+            if fi_number_type[-4:] == ".wav":
+                wav_seg = AudioSegment.from_wav(
+                    os.path.join(
+                        directory,
+                        fi))
+
             frag = Fragment(fi_song,
                             fi_number,
-                            np_data = np.load(os.path.join(
-                                directory,
-                                fi),
-                                              allow_pickle=True))
+                            np_data = np_data,
+                            wav_seg = wav_seg
+            )
             yield frag
 
-        except:
+        except Exception as e:
+            print(e)
             pass
 
     
