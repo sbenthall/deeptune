@@ -16,8 +16,8 @@ These arrays are saved to an output directory.
 """
 
 def chopchop():
-    for songfile in utils.onlyfiles(INPUT_DIR):
-        song_path_in = os.path.join(INPUT_DIR, songfile)
+    for songfile in utils.onlyfiles(RAW_MP3_DIR):
+        song_path_in = os.path.join(RAW_MP3_DIR, songfile)
         song = AudioSegment.from_mp3(song_path_in)
 
         for i, c in enumerate(utils.chunks(song,segment_duration)):

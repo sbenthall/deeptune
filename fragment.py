@@ -28,8 +28,15 @@ class Fragment():
         self.wav_seg = wav_seg
         self.np_data = np_data
 
-    def path(self):
-        return os.path.join(OUTPUT_DIR,
+    def path(self,dest="training"):
+        directory = None
+
+        if dest == "training":
+            directory = TRAINING_FRAGMENT_DIR
+        if dest == "generated":
+            directory = GENERATED_DIR
+
+        return os.path.join(directory,
                             f"{self.song}---{self.number}")
 
     def mp3_to_np(self, save=True):
@@ -53,8 +60,8 @@ class Fragment():
             print(f"Numpy array: Shape: {Xdb.shape}; Max: {Xdb.max()}; Min: {Xdb.min()}")
             np.save(self.path(), self.np_data)
 
-    def np_to_wav(self, save = False):
-        wav_path = self.path() + ".wav"
+    def np_to_wav(self, save = False, dest="generated"):
+        wav_path = self.path(dest=dest) + ".wav"
 
         Xdb = self.np_data
         X2 = librosa.db_to_amplitude(Xdb)
@@ -77,7 +84,9 @@ class Fragment():
 
 
 def from_directory(song=None):
-    filenames = utils.onlyfiles(OUTPUT_DIR)
+    directory = TRAINING_FRAGMENT_DIR
+
+    filenames = utils.onlyfiles(directory)
 
     for fi in filenames:
         fi_song, fi_number_type = fi.split("---")
@@ -91,7 +100,7 @@ def from_directory(song=None):
             frag = Fragment(fi_song,
                             fi_number,
                             np_data = np.load(os.path.join(
-                                OUTPUT_DIR,
+                                directory,
                                 fi),
                                               allow_pickle=True))
             yield frag
