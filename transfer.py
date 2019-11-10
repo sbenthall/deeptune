@@ -95,12 +95,12 @@ def show_tensor(tensor):
     plt.show()
 
 
-def transfer(base_fragment,train_step_function):
+def transfer(base_fragment,
+             train_step_function,
+             epochs = 10,
+             steps_per_epoch = 100):
     
     start = time.time()
-
-    epochs = 10
-    steps_per_epoch = 100
 
     step = 0
 
