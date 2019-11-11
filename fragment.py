@@ -95,24 +95,36 @@ def from_directory(song=None, directory = TRAINING_FRAGMENT_DIR):
 
     filenames = utils.onlyfiles(directory)
 
-    for fi in filenames:
-        fi_song, fi_number_type = fi.split("---")
+    fns = [(fi,
+            fi.split("---")[0],
+            int(fi.split("---")[1][:-4]),
+            fi.split("---")[1][-4:])
+           for
+           fi
+           in
+           filenames
+           if
+           "---" in fi
+    ]
 
+    fns = sorted(fns, key=lambda x: x[2])
+    
+
+    for fi,fi_song,fi_number,fi_type in fns:
+        
         try:
             if song and fi_song != song:
                 continue
 
-            fi_number = int(fi_number_type[:-4])
-
             np_data = None
-            if fi_number_type[-4:] == ".npy":
+            if fi_type == ".npy":
                 np_data = np.load(os.path.join(
                     directory,
                     fi),
                                 allow_pickle=True)
 
             wav_seg = None
-            if fi_number_type[-4:] == ".wav":
+            if fi_type == ".wav":
                 wav_seg = AudioSegment.from_wav(
                     os.path.join(
                         directory,

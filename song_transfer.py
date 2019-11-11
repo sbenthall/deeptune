@@ -17,18 +17,14 @@ extractor = StyleContentModel(song_model,
                               style_layers,
                               content_layers)
 
-
-
-
 ### Setting up the fragment loops.
 
-content_frags = sorted(list(fragment.from_directory(
-    song=content_song)), key=lambda x: x.number)
+content_frags = list(fragment.from_directory(
+    song=content_song))
 
 ## Walk the style file in a cycle next to the content
 ## fragments for now
-style_frags = itertools.cycle(fragment.from_directory(
-    song=style_song))
+style_frags = itertools.cycle(fragment.from_directory(song=style_song))
 
 generated_song = "Organ Fashioned Love Song v_0_1"
 

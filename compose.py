@@ -13,14 +13,10 @@ def compose(song):
     title = song[:-4]
     song = None
 
-    frags = sorted(fragment.from_directory(
+    frags = fragment.from_directory(
         song=title,
         directory=GENERATED_DIR
-    ),
-                   key=lambda x: x.number
     )
-
-    print(len(frags))
 
     for fr in frags:
         chunk = fr.get_wav_seg()
