@@ -22,9 +22,8 @@ extractor = StyleContentModel(song_model,
 
 ### Setting up the fragment loops.
 
-num_content_frags = 60
-content_frags = list(fragment.from_directory(
-    song=content_song))
+content_frags = sorted(list(fragment.from_directory(
+    song=content_song)), key=lambda x: x.number)
 
 ## Walk the style file in a cycle next to the content
 ## fragments for now
@@ -35,7 +34,10 @@ generated_song = "Organ Fashioned Love Song v_0_1"
 
 for i, (cfrag, sfrag) in enumerate(zip(content_frags,
                                        style_frags)):
-    print(f"{i}/{num_content_frags} {generated_song} Fragment Transfer")
+    print(f"{i}/{len(content_frags)} {generated_song} Fragment Transfer")
+    print(f"Content: {cfrag.song} {cfrag.number}")
+    print(f"Style: {sfrag.song} {sfrag.number}")
+    
     
     content_targets = extractor(
         load_data.preprocess_fragment(
