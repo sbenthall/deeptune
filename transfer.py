@@ -69,12 +69,11 @@ class StyleContentModel(tf.keras.models.Model):
 
 opt = tf.optimizers.Adam(learning_rate=0.02, beta_1=0.99, epsilon=1e-1)
 
-style_weight= 10000   #1e-2
-content_weight= 1  #1e4
-
 def style_content_loss(outputs,
                        content_targets,
                        style_targets,
+                       style_weight = 1,
+                       content_weight = 1,
                        num_content_layers=1,
                        num_style_layers=1
 ):
@@ -89,6 +88,41 @@ def style_content_loss(outputs,
     content_loss *= content_weight / num_content_layers
     loss = style_loss + content_loss
     return loss
+
+### building the training step-- should be moved
+### to deeper code module
+
+def train_step_factory(extractor,
+                       content_targets,
+                       style_targets,
+                       style_content_loss_function,
+                       content_layers,
+                       style_layers,
+                       style_weight=1,
+                       content_weight=1
+):
+
+    def train_step(image):
+        with tf.GradientTape() as tape:
+            outputs = extractor(image)
+            loss = style_content_loss(outputs,
+                                      content_targets,
+                                      style_targets,
+                                      style_weight = style_weight,
+                                      content_weight = content_weight,
+                                      num_content_layers = len(content_layers),
+                                      num_style_layers = len(style_layers)
+            )
+
+        grad = tape.gradient(loss, image)
+        opt.apply_gradients([(grad, image)])
+        image.assign(image)
+
+    return tf.function(
+        func = train_step
+    )
+
+
 
 def show_tensor(tensor):
     plt.imshow(load_data.postprocess_fragment(tensor))

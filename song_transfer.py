@@ -19,34 +19,6 @@ extractor = StyleContentModel(song_model,
 
 
 
-### building the training step-- should be moved
-### to deeper code module
-
-def train_step_factory(extractor,
-                       content_targets,
-                       style_targets,
-                       style_content_loss_function,
-                       content_layers,
-                       style_layers):
-
-    def train_step(image):
-        with tf.GradientTape() as tape:
-            outputs = extractor(image)
-            loss = style_content_loss(outputs,
-                                      content_targets,
-                                      style_targets,
-                                      num_content_layers = len(content_layers),
-                                      num_style_layers = len(style_layers)
-            )
-        
-        grad = tape.gradient(loss, image)
-        opt.apply_gradients([(grad, image)])
-        image.assign(image)
-
-    return tf.function(
-        func = train_step
-    )
-
 
 ### Setting up the fragment loops.
 
@@ -82,7 +54,10 @@ for i, (cfrag, sfrag) in enumerate(zip(content_frags,
                                     style_targets,
                                     style_content_loss,
                                     content_layers,
-                                    style_layers)
+                                    style_layers,
+                                    style_weight=10,
+                                    content_weight=1
+    )
 
     epochs = 5
     np_data = transfer(transfer_chunk,
