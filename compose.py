@@ -10,7 +10,7 @@ Recompose an mp3 from fragments.
 """
 
 def compose(song):
-    title = song[:-4]
+    title = song
     song = None
 
     frags = fragment.from_directory(
@@ -28,10 +28,5 @@ def compose(song):
 
             print(len(song))
 
-    song.export("song.wav", format="wav")
+    song.export(f"{song}.wav", format="wav")
 
-def main():
-    compose("Organ Fashioned Love Song v_0_1.mp3")
-
-if __name__ == '__main__':
-    main()

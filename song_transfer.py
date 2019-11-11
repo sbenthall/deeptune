@@ -1,6 +1,7 @@
 import fragment
 import itertools
 from transfer import *
+import compose
 
 ## Name of songs to transform.
 content_song = "11 - An Old Fashioned Love Song (Single Version)"
@@ -19,14 +20,17 @@ extractor = StyleContentModel(song_model,
 
 ### Setting up the fragment loops.
 
+limit = 5
+
 content_frags = list(fragment.from_directory(
     song=content_song))
-
+if limit:
+    content_frags = content_frags[:limit]
 ## Walk the style file in a cycle next to the content
 ## fragments for now
 style_frags = itertools.cycle(fragment.from_directory(song=style_song))
 
-generated_song = "Organ Fashioned Love Song v_0_1"
+generated_song = "Organ Fashioned Love Song v_0_3"
 
 for i, (cfrag, sfrag) in enumerate(zip(content_frags,
                                        style_frags)):
@@ -53,11 +57,11 @@ for i, (cfrag, sfrag) in enumerate(zip(content_frags,
                                     style_content_loss,
                                     content_layers,
                                     style_layers,
-                                    style_weight=10,
+                                    style_weight=250,
                                     content_weight=1
     )
 
-    epochs = 5
+    epochs = 7
     np_data = transfer(transfer_chunk,
                        train_step,
                        epochs = epochs
@@ -78,3 +82,6 @@ for i, (cfrag, sfrag) in enumerate(zip(content_frags,
     )
 
     transfer_frag.np_to_wav(save=True)
+
+
+compose.compose(generated_song)
