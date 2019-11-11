@@ -13,7 +13,7 @@ def preprocess_fragment(fragment):
 
     ds = np_data.shape
     tf_input = np_data.reshape(1, ds[0], ds[1], 1)
-    tf_input = tf_input.astype('float32')
+    #tf_input = tf_input.astype('float32')
     tf_input/=100
 
     return tf_input

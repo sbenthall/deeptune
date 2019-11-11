@@ -50,21 +50,21 @@ class Fragment():
         assert sr == wav_sample_rate
 
         X = librosa.stft(x)
-        Xdb = librosa.amplitude_to_db(X)
+        #Xdb = librosa.amplitude_to_db(X)
 
-        self.np_data = Xdb
+        self.np_data = X
 
         os.remove(f"{self.path()}.wav")
         
         if save:
-            print(f"Numpy array: Shape: {Xdb.shape}; Max: {Xdb.max()}; Min: {Xdb.min()}")
+            print(f"Numpy array: Shape: {self.np_data.shape}; Max: {self.np_data.max()}; Min: {self.np_data.min()}")
             np.save(self.path(), self.np_data)
 
     def np_to_wav(self, save = False, dest="generated"):
         wav_path = self.path(dest=dest) + ".wav"
 
-        Xdb = self.np_data
-        X2 = librosa.db_to_amplitude(Xdb)
+        X2 = self.np_data
+        #X2 = librosa.db_to_amplitude(Xdb)
         x2 = librosa.core.istft(X2)
 
         librosa.output.write_wav(wav_path,
