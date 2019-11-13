@@ -12,16 +12,16 @@ def preprocess_fragment(fragment):
     np_data = fragment.np_data
 
     ds = np_data.shape
-    tf_input = np_data.reshape(1, ds[0], ds[1], 1)
+    tf_input = np_data.reshape(1, ds[0], ds[1], 2)
     #tf_input = tf_input.astype('float32')
-    tf_input/=100
+    tf_input
 
     return tf_input
 
 def postprocess_fragment(tf_output):
-    np_data = tf_output.numpy() * 100
+    np_data = tf_output.numpy()
     ds = np_data.shape
-    np_data = np_data.reshape(ds[1], ds[2])
+    np_data = np_data.reshape(ds[1], ds[2], 2)
 
     return np_data
 
@@ -44,8 +44,6 @@ def prepare_tensorflow_datasets():
     num_labels = np.array([unique_labels.index(label)
                            for label
                            in labels])
-
-    
 
     ## shuffle the data
     p = np.random.permutation(len(num_labels))

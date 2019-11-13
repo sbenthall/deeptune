@@ -1,4 +1,5 @@
 from transfer import *
+from utils import colorize
 
 content_frag = Fragment(
     "11 - An Old Fashioned Love Song (Single Version)",
@@ -16,10 +17,10 @@ style_frag.load_np_data()
 fig=plt.figure(figsize=(8, 8))
 
 fig.add_subplot(1, 2, 1)
-plt.imshow(content_frag.np_data)
+plt.imshow(colorize(content_frag.np_data))
 
 fig.add_subplot(1, 2, 2)
-plt.imshow(style_frag.np_data)
+plt.imshow(colorize(style_frag.np_data))
 
 plt.show()
 
@@ -103,7 +104,10 @@ def train_step(image):
     image.assign(image)
 
 
-np_data = transfer(transfer_chunk,train_step)
+np_data = transfer(transfer_chunk,
+                   train_step,
+                   epochs = 5
+)
 
 epochs = len(np_data)
 
@@ -115,14 +119,14 @@ for i in range(epochs -1):
 fig=plt.figure(figsize=(8, 8))
 
 fig.add_subplot(1, epochs + 2, 1)
-plt.imshow(content_frag.np_data)
+plt.imshow(colorize(content_frag.np_data))
 
 for i in range(epochs):
     fig.add_subplot(1,epochs + 2, 2 + i)
-    plt.imshow(np_data[i].reshape(1025,44))
+    plt.imshow(colorize(np_data[i].reshape(1025,44,2)))
 
 fig.add_subplot(1, epochs + 2, epochs + 2)
-plt.imshow(style_frag.np_data)
+plt.imshow(colorize(style_frag.np_data))
 
 plt.show()
 
@@ -133,7 +137,7 @@ print(np_data[-1].min())
 
 transfer_frag = Fragment(
     "Mutant",
-    2,
+    5,
     np_data = load_data.postprocess_fragment(tf.Variable(np_data[-1]))
 )
 

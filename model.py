@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D, GlobalA
 from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
 
 ### where is this coming from?
-input_shape = (1025,44,1)
+input_shape = (1025,44,2)
 
 (train_dataset, test_dataset, num_categories) = ld.prepare_tensorflow_datasets()
 (train_dataset, test_dataset) = ld.shuffle(train_dataset, test_dataset)

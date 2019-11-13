@@ -50,9 +50,11 @@ class Fragment():
         assert sr == wav_sample_rate
 
         X = librosa.stft(x)
-        #Xdb = librosa.amplitude_to_db(X)
 
-        self.np_data = X
+        # use both components...
+        cX = np.stack([np.real(X),np.imag(X)],2)
+
+        self.np_data = cX
 
         os.remove(f"{self.path()}.wav")
         
@@ -63,12 +65,14 @@ class Fragment():
     def np_to_wav(self, save = False, dest="generated"):
         wav_path = self.path(dest=dest) + ".wav"
 
-        X2 = self.np_data
+        cX = self.np_data
+
+        X = cX[:,:,0] + 1j * cX[:,:,1]
         #X2 = librosa.db_to_amplitude(Xdb)
-        x2 = librosa.core.istft(X2)
+        x = librosa.core.istft(X)
 
         librosa.output.write_wav(wav_path,
-                                 x2,
+                                 x,
                                  wav_sample_rate)
         chunk = AudioSegment.from_wav(wav_path)
 
