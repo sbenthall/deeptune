@@ -13,22 +13,52 @@ input_shape = (1025,44,2)
 (train_dataset, test_dataset) = ld.shuffle(train_dataset, test_dataset)
 
 model = tf.keras.Sequential([
-    Conv2D(32, (3, 3),
+    Conv2D(32, (3, 1), #0
            activation='relu',
            padding='same',
            input_shape=input_shape),
-    MaxPooling2D((2, 2)),
-    Conv2D(64, (3, 3),
+    MaxPooling2D((2, 1)),
+    Conv2D(32, (3, 1), #1
            activation='relu',
            padding='same',
            input_shape=input_shape),
-    MaxPooling2D((2, 2)),
-    Conv2D(64, (3, 3),
+    MaxPooling2D((2, 1)),
+    Conv2D(32, (3, 1), #2
            activation='relu',
            padding='same',
            input_shape=input_shape),
-    MaxPooling2D((2, 2)),
-    Conv2D(64, (3, 3),
+    MaxPooling2D((2, 1)),
+    Conv2D(32, (3, 1), #3
+           activation='relu',
+           padding='same',
+           input_shape=input_shape),
+    MaxPooling2D((2, 1)),
+    Conv2D(32, (3, 1), #4
+           activation='relu',
+           padding='same',
+           input_shape=input_shape),
+    MaxPooling2D((2, 1)),
+    Conv2D(32, (1, 3), #5
+           activation='relu',
+           padding='same',
+           input_shape=input_shape),
+    MaxPooling2D((1, 2)),
+    Conv2D(32, (1, 3), #6
+           activation='relu',
+           padding='same',
+           input_shape=input_shape),
+    MaxPooling2D((1, 2)),
+    Conv2D(32, (1, 3), #7
+           activation='relu',
+           padding='same',
+           input_shape=input_shape),
+    MaxPooling2D((1, 2)),
+    Conv2D(32, (1, 3), #8
+           activation='relu',
+           padding='same',
+           input_shape=input_shape),
+    MaxPooling2D((1, 2)),
+    Conv2D(64, (3, 3), #9
            activation='relu',
            padding='same',
            input_shape=input_shape),

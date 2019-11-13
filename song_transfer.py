@@ -13,8 +13,8 @@ generated_song = "organ1over2"
 # Model, and layers uses for the transfer.
 # Build the extractor
 song_model = tf.keras.models.load_model('song_model.h5')
-content_layers = ['dense'] 
-style_layers = ['conv2d_1','conv2d_2']
+content_layers = ['conv2d_7','conv2d_8'] 
+style_layers = ['conv2d_4','conv2d_5']
 
 extractor = StyleContentModel(song_model,
                               style_layers,
