@@ -9,13 +9,13 @@ import utils
 Recompose an mp3 from fragments.
 """
 
-def compose(song):
+def compose(song, directory=GENERATED_DIR):
     title = song
     song = None
 
     frags = fragment.from_directory(
         song=title,
-        directory=GENERATED_DIR
+        directory=directory
     )
 
     for fr in frags:
@@ -28,5 +28,5 @@ def compose(song):
 
             print(len(song))
 
-    song.export(f"{song}.wav", format="wav")
+    song.export(f"{title}.wav", format="wav")
 
